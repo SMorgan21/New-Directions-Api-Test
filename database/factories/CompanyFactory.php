@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
 class CompanyFactory extends Factory
 {
@@ -14,7 +15,7 @@ class CompanyFactory extends Factory
         return [
             'name' => $this->faker->company,
             'email' => $this->faker->unique()->safeEmail,
-            'password' => $this->faker->password(8),
+            'password' => Hash::make($this->faker->password(8)),
         ];
     }
 }

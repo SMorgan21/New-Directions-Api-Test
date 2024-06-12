@@ -5,29 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function getToken(Request $request)
     {
-        // Validate the request
+        Log::info('getToken method called');
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // Check if the credentials are valid
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        $user = Company::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            Log::error('Invalid credentials');
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
         }
 
-        // Get the authenticated company
-        $company = Auth::user();
+        Log::info('Credentials are valid, returning token');
 
-        // Create a token for the company
-        $token = $company->createToken('company-specific-auth-token')->plainTextToken;
-
-        // Return the token
-        return response()->json(['token' => $token]);
+        return response()->json([
+            'token' => $user->createToken($request->device_name)->plainTextToken
+        ]);
     }
 }
