@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/applicants', 'ApplicantController@index');
+    Route::get('/applicants/{applicant}', 'ApplicantController@show');
+    Route::get('/applicants/{applicant}/cv', 'ApplicantController@downloadCv');
 });
